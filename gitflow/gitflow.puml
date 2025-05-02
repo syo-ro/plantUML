@@ -1,0 +1,89 @@
+@startuml
+skinparam database {
+    BackgroundColor White
+    BorderColor Black
+    FontSize 12
+}
+skinparam package {
+    BorderColor Black
+    BackgroundColor #F9F9F9
+}
+skinparam ranksep 30  ' ノード間の垂直間隔を縮小
+skinparam nodesep 10  ' ノード内の間隔を縮小
+
+' === ローカル環境: User A/B/C ===
+package "BAS Environment" {
+
+    package "User1" {
+        actor DevA as "User1"
+        database LocalFeatureA1 as "Feature Branch\n(Local A)"
+        DevA --> LocalFeatureA1 : git commit
+    }
+
+    package "User2" {
+        actor DevB as "User2"
+        database LocalFeatureA2 as "Feature Branch\n(Local A)"
+        DevB --> LocalFeatureA2 : git commit
+    }
+
+    package "User3" {
+        actor DevC as "User3"
+        database LocalFeatureB as "Feature Branch\n(Local B)"
+        DevC --> LocalFeatureB : git commit
+    }
+}
+
+' === リモートリポジトリ ===
+package "Remote Repository" {
+    database RemoteFeatureA as "Feature\nBranch A"
+    database RemoteFeatureB as "Feature\nBranch B"
+    
+    left to right direction
+    database RemoteDevelop as "Develop\nBranch"
+    database RemoteTest as "Test\nBranch"
+    database RemoteRelease as "Release\nBranch"
+    package "Release Version" {
+      rectangle tag1 as "v1.0.0"
+      rectangle tag2 as "v1.1.0"
+    }
+}
+
+' === BTP環境 (Remote Repositoryの下に配置されやすくする) ===
+package "BTP Environment" {
+    left to right direction
+    rectangle ReleaseBTP as "BTP Pro"
+    rectangle TestBTP as "BTP Test"
+    rectangle DevelopBTP as "BTP Trial"
+}
+
+' === ローカル → リモート Push ===
+LocalFeatureA1 --> RemoteFeatureA : git push
+LocalFeatureA2 --> RemoteFeatureA : git push
+LocalFeatureB --> RemoteFeatureB : git push
+
+' === リモート → ローカル Pull ===
+RemoteFeatureA ..> LocalFeatureA1 : git pull
+LocalFeatureA1 ..> DevA : git pull
+RemoteFeatureA ..> LocalFeatureA2 : git pull
+LocalFeatureA2 ..> DevB : git pull
+RemoteFeatureB ..> LocalFeatureB : git pull
+LocalFeatureB ..> DevC : git pull
+
+' === リモートブランチ間フロー ===
+RemoteFeatureA --> RemoteDevelop : Merge
+RemoteFeatureB --> RemoteDevelop : Merge
+RemoteDevelop --> RemoteTest : Merge
+RemoteTest --> RemoteRelease : Merge
+RemoteRelease --> tag1 : Tag Create
+RemoteRelease --> tag2 : Tag Create
+
+' === リモート → BTP 環境 Deploy ===
+RemoteDevelop .down.> DevelopBTP : Deploy
+RemoteTest .down.> TestBTP : Deploy
+tag2 .down.> ReleaseBTP : Deploy
+
+note right of tag1
+バージョン (v1.1.0) が障害の場合、  
+本番環境へ Deploy
+end note
+@enduml

@@ -1,0 +1,39 @@
+@startuml
+skinparam database {
+    BackgroundColor White
+    BorderColor Black
+    FontSize 12
+}
+
+actor "Developer A" as DevA
+database "Feature Branch (Local A)" as LocalFeatureA
+actor "Developer B" as DevB
+database "Feature Branch (Local B)" as LocalFeatureB
+actor "Developer C" as DevC
+database "Feature Branch (Local C)" as LocalFeatureC
+
+
+database "Feature Branch (Remote)" as RemoteFeature
+database "Develop Branch (Remote)" as RemoteDevelop
+database "Test Branch (Remote)" as RemoteTest
+database "Release Branch (Remote)" as RemoteRelease
+
+' ユーザー操作の流れ
+DevA --> LocalFeatureA : git commit
+LocalFeatureA --> RemoteFeature : git push
+RemoteFeature --> DevA : git pull
+
+DevB --> LocalFeatureB : git commit
+LocalFeatureB --> RemoteFeature : git push
+RemoteFeature --> DevB : git pull
+
+DevC --> LocalFeatureC : git commit
+LocalFeatureC --> RemoteFeature : git push
+RemoteFeature --> DevC : git pull
+
+' Gitフローのリモートブランチ間連携
+RemoteFeature --> RemoteDevelop : 開発環境テスト
+RemoteDevelop --> RemoteTest : 検証環境テスト
+RemoteTest --> RemoteRelease : 本番リリース
+
+@enduml

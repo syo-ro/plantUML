@@ -1,0 +1,85 @@
+@startuml
+
+actor DevA as "User1"
+participant StagedChangesA as "Staged Changes"
+
+box "Local Repository (User1)"
+    participant V1 as "Version1"
+    participant V2 as "Version2"
+    participant V3 as "Version3"
+    participant V4 as "Version4"
+end box
+
+' === スペース確保用ダミー ===
+participant Spacer1 as " "
+participant Spacer2 as " "
+
+box "Git Remote Repository"
+    participant RV1 as "Version1"
+    participant RV2 as "Version2"
+    participant RV3 as "Version3"
+    participant RV4 as "Version4"
+end box
+
+' === 再びスペース確保用ダミー ===
+participant Spacer3 as " "
+participant Spacer4 as " "
+
+box "Local Repository (User2)"
+    participant User2V3 as "Version3"
+    participant User2V2 as "Version2"
+    participant User2V1 as "Version1"
+end box
+
+participant StagedChangesB as "Staged Changes"
+actor DevB as "User2"
+
+' === 通常の処理 ===
+activate DevA
+DevA --> StagedChangesA : git add
+activate StagedChangesA
+DevA --> StagedChangesA : git add
+StagedChangesA --> V1 : git commit
+deactivate StagedChangesA
+activate V1
+
+DevA --> StagedChangesA : git add
+activate StagedChangesA
+StagedChangesA --> V2 : git commit
+deactivate StagedChangesA
+activate V2
+
+V2 --> RV1 : git Push (V1,V2)
+activate RV1
+activate RV2
+V2 --> RV2 : git Push (V1,V2)
+
+activate User2V1
+activate User2V2
+RV2--> User2V1 : git Pull (V1,V2)
+RV2--> User2V2 : git Pull (V1,V2)
+User2V2--> DevB : git Pull (V2)
+activate DevB
+
+DevB --> StagedChangesB : git add
+activate StagedChangesB
+StagedChangesB --> User2V3 : git commit
+deactivate StagedChangesB
+activate User2V3
+
+User2V3 --> RV3 : git Push (V3)
+activate RV3
+RV3 --> V3 : git Pull (V3)
+activate V3
+V3 --> DevA : git Pull (V3)
+
+DevA --> StagedChangesA : git add
+activate StagedChangesA
+StagedChangesA --> V4 : git commit
+deactivate StagedChangesA
+activate V4
+
+V4 --> RV4 : git Push (V4)
+activate RV4
+
+@enduml

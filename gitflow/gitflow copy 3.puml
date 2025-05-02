@@ -1,0 +1,62 @@
+@startuml
+skinparam database {
+    BackgroundColor White
+    BorderColor Black
+    FontSize 12
+}
+skinparam package {
+    BorderColor Black
+    BackgroundColor #F9F9F9
+}
+
+' === ローカル環境: User A/B/C ===
+package "Local Environment" {
+
+    package "User1" {
+        actor DevA as "User1"
+        database LocalFeatureA1 as "Feature Branch (Local A)"
+        DevA --> LocalFeatureA1 : git commit
+    }
+
+    package "User2" {
+        actor DevB as "User2"
+        database LocalFeatureA2 as "Feature Branch (Local A)"
+        DevB --> LocalFeatureA2 : git commit
+    }
+
+    package "User3" {
+        actor DevC as "User3"
+        database LocalFeatureB as "Feature Branch (Local B)"
+        DevC --> LocalFeatureB : git commit
+    }
+}
+
+' === リモートリポジトリ ===
+package "Remote Repository" {
+    database RemoteFeatureA as "Feature Branch (Remote A)"
+    database RemoteFeatureB as "Feature Branch (Remote B)"
+    database RemoteDevelop as "Develop Branch (Remote)"
+    database RemoteTest as "Test Branch (Remote)"
+    database RemoteRelease as "Release Branch (Remote)"
+}
+
+' === ローカル → リモート Push ===
+LocalFeatureA1 --> RemoteFeatureA : git push
+LocalFeatureA2 --> RemoteFeatureA : git push
+LocalFeatureB --> RemoteFeatureB : git push
+
+' === リモート → ローカル Pull ===
+RemoteFeatureA ..> LocalFeatureA1 : git pull
+LocalFeatureA1 ..> DevA : git pull
+RemoteFeatureA ..> LocalFeatureA2 : git pull
+LocalFeatureA2 ..> DevB : git pull
+RemoteFeatureB ..> LocalFeatureB : git pull
+LocalFeatureB ..> DevC : git pull
+
+' === リモートブランチ間フロー ===
+RemoteFeatureA --> RemoteDevelop : Merge Request
+RemoteFeatureB --> RemoteDevelop : Merge Request
+RemoteDevelop --> RemoteTest : Merge Request
+RemoteTest --> RemoteRelease : Merge Request
+
+@enduml

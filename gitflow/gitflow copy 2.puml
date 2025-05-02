@@ -1,0 +1,55 @@
+@startuml
+skinparam database {
+    BackgroundColor White
+    BorderColor Black
+    FontSize 12
+}
+
+' === 開発者＆ローカルブランチ ===
+package "Local Environment User A" {
+    actor "User A" as DevA
+    database "Feature Branch (Local A)" as LocalFeatureA1
+}
+
+package "Local Environment User B" {
+    actor "User B" as DevB
+    database "Feature Branch (Local A)" as LocalFeatureA2
+}
+
+package "Local Environment User C" {
+    actor "User C" as DevC
+    database "Feature Branch (Local B)" as LocalFeatureB
+}
+
+' === リモートブランチ ===
+package "Remote Repository" {
+    database "Feature Branch (Remote A)" as RemoteFeatureA
+    database "Feature Branch (Remote B)" as RemoteFeatureB
+    database "Develop Branch (Remote)" as RemoteDevelop
+    database "Test Branch (Remote)" as RemoteTest
+    database "Release Branch (Remote)" as RemoteRelease
+}
+
+' === ユーザー操作の流れ ===
+DevA --> LocalFeatureA1 : git commit
+LocalFeatureA1 --> RemoteFeatureA : git push
+RemoteFeatureA --> LocalFeatureA1 : git pull
+LocalFeatureA1 --> DevA : git pull
+
+DevB --> LocalFeatureA2 : git commit
+LocalFeatureA2 --> RemoteFeatureA : git push
+RemoteFeatureA --> LocalFeatureA2 : git pull
+LocalFeatureA2 --> DevB : git pull
+
+DevC --> LocalFeatureB : git commit
+LocalFeatureB --> RemoteFeatureB : git push
+RemoteFeatureB --> LocalFeatureB : git pull
+LocalFeatureB --> DevC : git pull
+
+' === Gitフローのリモートブランチ間連携 ===
+RemoteFeatureA --> RemoteDevelop : Merge
+RemoteFeatureB --> RemoteDevelop : Merge
+RemoteDevelop --> RemoteTest : Merge
+RemoteTest --> RemoteRelease : Merge
+
+@enduml

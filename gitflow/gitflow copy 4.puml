@@ -1,0 +1,78 @@
+@startuml
+skinparam database {
+    BackgroundColor White
+    BorderColor Black
+    FontSize 12
+}
+skinparam package {
+    BorderColor Black
+    BackgroundColor #F9F9F9
+}
+skinparam ranksep 30  ' ノード間の垂直間隔を縮小
+skinparam nodesep 10  ' ノード内の間隔を縮小
+
+' === ローカル環境: User A/B/C ===
+package "BAS Environment" {
+
+    package "User1" {
+        actor DevA as "User1"
+        database LocalFeatureA1 as "Feature Branch (Local A)"
+        DevA --> LocalFeatureA1 : git commit
+    }
+
+    package "User2" {
+        actor DevB as "User2"
+        database LocalFeatureA2 as "Feature Branch (Local A)"
+        DevB --> LocalFeatureA2 : git commit
+    }
+
+    package "User3" {
+        actor DevC as "User3"
+        database LocalFeatureB as "Feature Branch (Local B)"
+        DevC --> LocalFeatureB : git commit
+    }
+}
+
+' === リモートリポジトリ ===
+package "Remote Repository" {
+    database RemoteFeatureA as "Feature Branch A"
+    database RemoteFeatureB as "Feature Branch B"
+    
+    ' 横並びにするために directionを設定
+    left to right direction
+    database RemoteDevelop as "Develop Branch"
+    database RemoteTest as "Test Branch"
+    database RemoteRelease as "Release Branch"
+}
+
+package "BTP Environment" {
+    left to right direction
+    database DevelopBTP as "BTP Trial"
+    database TestBTP as "BTP Test"
+    database ReleaseBTP as "BTP Pro"
+}
+
+' === ローカル → リモート Push ===
+LocalFeatureA1 --> RemoteFeatureA : git push
+LocalFeatureA2 --> RemoteFeatureA : git push
+LocalFeatureB --> RemoteFeatureB : git push
+
+' === リモート → ローカル Pull ===
+RemoteFeatureA ..> LocalFeatureA1 : git pull
+LocalFeatureA1 ..> DevA : git pull
+RemoteFeatureA ..> LocalFeatureA2 : git pull
+LocalFeatureA2 ..> DevB : git pull
+RemoteFeatureB ..> LocalFeatureB : git pull
+LocalFeatureB ..> DevC : git pull
+
+' === リモートブランチ間フロー ===
+RemoteFeatureA --> RemoteDevelop : Merge
+RemoteFeatureB --> RemoteDevelop : Merge
+RemoteDevelop --> RemoteTest : Merge
+RemoteTest --> RemoteRelease : Merge
+
+RemoteDevelop --> DevelopBTP : Deploy
+RemoteTest --> TestBTP : Deploy
+RemoteRelease --> ReleaseBTP : Deploy
+
+@enduml

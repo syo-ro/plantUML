@@ -1,0 +1,34 @@
+@startuml
+
+box "Local Repository (User2)"
+    participant V3 as "Version3"
+    participant V2 as "Version2"
+    participant V1 as "Version1"
+end box
+
+participant StagedChanges as "Staged Changes"
+
+actor DevA as "User2"
+
+activate DevA
+DevA --> StagedChanges : git add
+
+activate StagedChanges
+StagedChanges --> V1 : git commit
+deactivate StagedChanges
+activate V1
+
+DevA --> StagedChanges : git add
+activate StagedChanges
+StagedChanges --> V2 : git commit
+deactivate StagedChanges
+activate V2
+
+DevA --> StagedChanges : git add
+activate StagedChanges
+DevA --> StagedChanges : git add
+StagedChanges --> V3 : git commit
+deactivate StagedChanges
+activate V3
+
+@enduml
