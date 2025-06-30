@@ -24,7 +24,7 @@ package "Remote Repository" {
 }
 
 ' === BTP環境 (Remote Repositoryの下に配置されやすくする) ===
-package "BTP Environment"s {
+package "BTP Environment" {
     left to right direction
     rectangle ReleaseBTP as "BTP Pro"
 }
