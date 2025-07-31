@@ -1,0 +1,40 @@
+@startuml
+left to right direction
+
+
+' === リモートリポジトリ ===
+database db1 as "Table2 (db)"
+database db2 as "Table1 (db)"
+database db3 as "Table3 (db)"
+rectangle srv1 as "Service1 (srv)"
+rectangle srv2 as "Service2 (srv)"
+rectangle srv3 as "Service3 (srv)"
+rectangle fiori1 as "Fiori1 (app)"
+rectangle fiori2 as "Fiori2 (app)"
+rectangle fiori3 as "Fiori3 (app)"
+
+db2 --> srv1
+db1 --> srv1
+
+db1 --> srv2
+db2 --> srv2
+db3 --> srv2
+db3 --> srv3 
+srv1 --> fiori1 
+srv2 --> fiori2
+srv3 --> fiori2
+srv3 --> fiori3
+
+note right of fiori2
+複数 table ⇒ 複数 Service ⇒ 1 Fiori
+end note
+
+note right of fiori1
+複数 table ⇒ 1 Service ⇒ 1 Fiori
+end note
+
+note right of fiori3
+1 table ⇒ 1 Service ⇒ 1 Fiori
+end note
+
+@enduml
